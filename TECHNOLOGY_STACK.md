@@ -349,7 +349,7 @@ module.exports = connectDB;
 
 ---
 
-## Cloud Services & APIs
+## Cloud Services and APIs
 
 ### Image Storage: Cloudinary
 
@@ -445,7 +445,7 @@ import 'leaflet/dist/leaflet.css';
 
 ---
 
-## Authentication & Security
+## Authentication and Security
 
 ### Authentication: JWT (JSON Web Tokens)
 
@@ -550,7 +550,7 @@ npm install helmet cors express-rate-limit express-validator
 
 ## Development Tools
 
-### Version Control: Git & GitHub
+### Version Control: Git and GitHub
 
 **Repository Structure:**
 ```
@@ -641,8 +641,8 @@ TOKEN: {{auth_token}}
 - BACKLOG
 - TO DO
 - IN PROGRESS (WIP: 3)
-- REVIEW
-- TESTING
+- REVIEW (WIP: 2)
+- TESTING (WIP: 2)
 - DONE
 - ARCHIVE
 
@@ -650,10 +650,15 @@ TOKEN: {{auth_token}}
 - Setup (green)
 - High Priority (red)
 - Research (blue)
-- Frontend (purple)
-- Backend (orange)
-- Bug (red)
-- Enhancement (yellow)
+- Frontend (subtle sky)
+- Backend (purple)
+- Spike (orange)
+- DevOps (yellow)
+- Database (subtle red)
+- UI/UX (subtle purple)
+- Low Priority (subtle pink)
+- Medium Priority (bold pink)
+- Documentation (bold black)
 
 **Card Format:**
 ```
@@ -662,13 +667,13 @@ Due Date: Set for all cards
 Members: Assigned team members
 Labels: Relevant labels
 Description: Detailed requirements
-Checklist: Sub-tasks
-Attachments: Related files
+Checklist: Sub-tasks; progress tracker 
+Attachments: Related files; analysis; supporting documents
 ```
 
 ---
 
-## Deployment & Hosting
+## Deployment and Hosting
 
 ### Frontend: Vercel
 
