@@ -1,25 +1,24 @@
 # SaveMate Technology Stack Documentation
 
-**Project:** SaveMate - Local Deals & Discounts Platform  
-**Team:** JY, RI, MR, RY, SS  
+**Project:** SaveMate - Local Deals and Discounts Platform   
 **Date Finalized:** November 19, 2025  
 **Decision Method:** Team research and decisions
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 1. [Frontend Stack](#frontend-stack)
 2. [Backend Stack](#backend-stack)
-3. [Cloud Services & APIs](#cloud-services--apis)
-4. [Authentication & Security](#authentication--security)
+3. [Cloud Services and APIs](#cloud-services--apis)
+4. [Authentication and Security](#authentication--security)
 5. [Development Tools](#development-tools)
-6. [Deployment & Hosting](#deployment--hosting)
+6. [Deployment and Hosting](#deployment--hosting)
 7. [Package Management](#package-management)
 8. [Future Considerations](#future-considerations)
 9. [Technology Justification Matrix](#technology-justification-matrix)
 10. [Decision Timeline](#decision-timeline)
-11. [References & Resources](#references--resources)
+11. [References and Resources](#references--resources)
 
 ---
 
@@ -856,18 +855,6 @@ npm update           # Update packages
 
 ---
 
-## Team Competency Assessment
-
-| Team Member | React | Node.js | MongoDB | Tailwind | Overall |
-|-------------|-------|---------|---------|----------|---------|
-| JY | Good | Medium | Medium | Knowledge | 8/10 |
-| RI | Good | Good | Good | Knowledge | 9/10 |
-| MR | Medium | Good | Good | Knowledge | 8/10 |
-| RY | Learning | Medium | Learning | Knowledge | 7/10 |
-| SS | Medium | Good | Medium | Knowledge | 8/10 |
-
-**Team Average:** 8/10 - Strong foundation for successful project completion
-
 **Skill Gaps Identified:**
 - Tailwind CSS (all members have knowledge)
 - React Leaflet (all members have knowledge)
@@ -888,7 +875,7 @@ npm update           # Update packages
 **Activities:**
 - Individual research on technology alternatives
 - Pros/cons documentation for each option
-- Cost analysis (critical for student budget)
+- Cost analysis (critical for each team member's budget)
 - Community support evaluation
 - Learning curve assessment
 
@@ -900,12 +887,6 @@ npm update           # Update packages
 - Hosting providers comparison
 
 ---
-
-### November 18, 2025: Team Discussion and Finalized Decisions
-**Meeting Details:**
-- Duration: 2 hours
-- Platform: Discord voice call
-- Attendance: All 5 team members
 
 **Discussion Points:**
 - Reviewed all research findings
@@ -926,13 +907,13 @@ npm update           # Update packages
 ### November 19, 2025: Documentation Complete
 **Activities:**
 - Created this TECHNOLOGY_STACK.md document
-- Shared with all team members via GitHub
+- Shared with all assigned team members via GitHub
 - Added to project repository
-- Reviewed and approved by team
+- Reviewed and approved by team leader
 
 ---
 
-## References & Resources
+## References and Resources
 
 ### React
 - **Official React Documentation:** https://react.dev
@@ -946,7 +927,7 @@ npm update           # Update packages
 - **Article:** "Tailwind CSS Best Practices" - LogRocket
 - **Video:** "Tailwind CSS Crash Course" by Traversy Media
 
-### Node.js & Express
+### Node.js and Express
 - **Node.js Documentation:** https://nodejs.org
 - **Express.js Guide:** https://expressjs.com
 - **Book:** "Node.js Design Patterns" by Mario Casciaro
@@ -970,7 +951,7 @@ npm update           # Update packages
 - **Video:** "Cloudinary Image Upload in React"
 - **Blog:** "Optimizing Images with Cloudinary"
 
-### Authentication & Security
+### Authentication and Security
 - **JWT Documentation:** https://jwt.io
 - **Article:** "JWT Authentication Best Practices"
 - **Guide:** "Securing Node.js Applications"
@@ -984,11 +965,10 @@ npm update           # Update packages
 
 ---
 
-## Approval & Sign-off
+## Approval and Sign-off
 
 **Approved by:** All Team Members (JY, RI, MR, RY, SS)  
-**Date:** November 19, 2025  
-**Meeting Recording:** Saved in team Google Drive  
+**Date:** November 19, 2025   
 **Next Review:** If issues arise during development
 
 ---
@@ -997,7 +977,7 @@ npm update           # Update packages
 
 **Version:** 1.0  
 **Last Updated:** November 19, 2025  
-**Status:** FINALIZED ✅
+**Status:** FINALIZED
 
 **Change Log:**
 - v1.0 (Nov 19, 2025) - Initial document created with all finalized decisions
@@ -1011,7 +991,7 @@ npm update           # Update packages
 
 ## Quick Reference
 
-### 📦 Package Installation Commands
+###  Package Installation Commands
 
 **Frontend:**
 ```bash
@@ -1034,7 +1014,7 @@ npm install --save-dev nodemon
 
 ---
 
-### 🔧 Essential Configuration Files
+###  Essential Configuration Files
 
 **`.env` (Backend - DO NOT COMMIT):**
 ```
@@ -1073,7 +1053,7 @@ yarn-error.log*
 
 ---
 
-### 🚀 Development Commands
+###  Development Commands
 
 **Start Frontend:**
 ```bash
@@ -1107,7 +1087,7 @@ concurrently "cd frontend && npm start" "cd backend && npm run dev"
 ---
 
 **Contact Information:**
-For questions about this document, contact the team lead or post in the team Discord channel.
+For questions about this document, contact the team lead or post in the team group chat channel.
 
 **Last Reviewed:** November 19, 2025  
 **Next Review:** End of Week 7 (Post-project retrospective)
