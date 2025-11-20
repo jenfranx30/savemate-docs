@@ -110,11 +110,12 @@ savemate-backend/
 
 ### Top-Level Project Layout
 
+```
 SaveMate Project/
 ├── savemate-docs/  Documentation repo
 ├── savemate-frontend/  React frontend
 └── savemate-backend/  Backend API (Node.js/Express)
-
+```
 
 Benefits of this separation:
 
