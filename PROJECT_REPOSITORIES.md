@@ -58,23 +58,20 @@ Main features:
 - API calls to backend  
 
 #### Structure (simplified):
-
-Structure (simplified):
-
+```
 savemate-frontend/
 ├── src/
-│ ├── components/
-│ ├── pages/
-│ ├── contexts/
-│ ├── services/
-│ ├── utils/
-│ └── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── contexts/
+│   ├── services/
+│   ├── utils/
+│   └── assets/
 ├── public/
 ├── .env.example
 ├── package.json
 └── README.md
-
-
+```
 
 ---
 
@@ -93,8 +90,7 @@ Key features:
 
 #### Structure (simplified):
 
-Structure (simplified):
-
+```
 savemate-backend/
 ├── config/
 ├── models/
@@ -106,20 +102,7 @@ savemate-backend/
 ├── .env.example
 ├── package.json
 └── README.md
-
-savemate-backend/
-│── config/
-│── models/
-│── controllers/
-│── routes/
-│── middleware/
-│── utils/
-│── server.js
-│── .env.example
-│── package.json
-└── README.md
-
-
+```
 
 ---
 
