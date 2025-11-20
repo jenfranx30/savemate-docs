@@ -59,17 +59,19 @@ Main features:
 
 #### Structure (simplified):
 
+Structure (simplified):
+
 savemate-frontend/
-│── src/
+├── src/
 │ ├── components/
 │ ├── pages/
 │ ├── contexts/
 │ ├── services/
 │ ├── utils/
 │ └── assets/
-│── public/
-│── .env.example
-│── package.json
+├── public/
+├── .env.example
+├── package.json
 └── README.md
 
 
@@ -90,6 +92,20 @@ Key features:
 - User/Business/Deals routes  
 
 #### Structure (simplified):
+
+Structure (simplified):
+
+savemate-backend/
+├── config/
+├── models/
+├── controllers/
+├── routes/
+├── middleware/
+├── utils/
+├── server.js
+├── .env.example
+├── package.json
+└── README.md
 
 savemate-backend/
 │── config/
