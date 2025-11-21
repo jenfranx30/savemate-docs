@@ -1,7 +1,6 @@
 # SaveMate - Documentation Repository
 
-**Project:** SaveMate - Local Deals & Discounts Platform  
-**Team:** JY, RI, MR, RY, SS  
+**Project:** SaveMate - Local Deals and Discounts Platform   
 **Course:** Agile Project Management  
 **Institution:** WSB University  
 **Timeline:** November 2025 - January 2026 (7 weeks)
