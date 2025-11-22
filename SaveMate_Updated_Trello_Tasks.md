@@ -1,4 +1,4 @@
-# SaveMate - Updated Trello Tasks Documentation
+# SaveMate - Updated Trello Tasks Documentation - Week 1
 ## Python/FastAPI + React + MongoDB Stack
 
 ---
@@ -58,7 +58,7 @@
 ✅ Final decision documented
 
 ### RESEARCH DOCUMENT:
-Attached: "RESEARCH ANALYSIS FOR COMPLETED DECISIONS.pdf"
+Attached: "RESEARCH ANALYSIS FOR COMPLETED DECISIONS.pdf" https://trello.com/1/cards/690601433ab71d2ff73c1c3b/attachments/691d829a2253d6152a9a223f/download/RESEARCH_ANALYSIS_FOR_COMPLETED_DECISIONS.pdf
 
 ---
 
@@ -77,16 +77,16 @@ Establish organized, production-ready project structure that supports efficient 
 ### GITHUB REPOSITORIES (3 total):
 
 1. **savemate-frontend** - React 18 application repository
-   - Repository URL: [GitHub link]
+   - Repository URL: [https://github.com/jenfranx30/savemate-frontend]
    - Tech: React 18, Vite, Tailwind CSS, React Router v6
 
 2. **savemate-backend** - Python/FastAPI API repository
-   - Repository URL: [GitHub link]
+   - Repository URL: [(https://github.com/jenfranx30/savemate-backend)]
    - Tech: Python 3.11+, FastAPI, Motor, Beanie, MongoDB
 
 3. **savemate-docs** - Project documentation
-   - Repository URL: [GitHub link]
-   - Contains: Architecture docs, API specs, meeting notes
+   - Repository URL: [https://github.com/jenfranx30/savemate-docs]
+   - Contains: Architecture docs, API specs, meeting notes, etc
 
 ### INITIAL SETUP COMPLETED:
 ✅ All 3 repositories created and accessible
@@ -630,28 +630,16 @@ VITE_MAP_API_KEY=your-map-api-key
 ## PENDING TASKS (to complete this card):
 
 ### CHECKLIST (29% complete):
-✅ Research best practices for MERN stack (now Python/FastAPI stack)
+✅ Research best practices for MERN stack (changed to Python/FastAPI stack)
 ✅ Create architecture diagram
-⬜ **Design database schema** (see above - needs team review)
-⬜ **Plan folder structure** (see above - needs team review)
-⬜ **Document API endpoints** (see above - needs team review)
+⬜ **Design database schema** (needs team review)
+⬜ **Plan folder structure** (needs team review)
+⬜ **Document API endpoints** (needs team review)
 ⬜ **Get team approval on architecture**
 ⬜ **Share documentation with team**
 
 ---
 
-## NEXT STEPS:
-
-1. **Review this architecture document with team**
-2. **Get approval from all team members (RI, MR, J)**
-3. **Implement folder structure in both repositories**
-4. **Create Pydantic models and schemas**
-5. **Set up MongoDB connection with Beanie**
-6. **Implement authentication system**
-7. **Build API endpoints incrementally**
-8. **Test with FastAPI Swagger UI**
-
----
 
 ## AUTOMATIC DOCUMENTATION:
 
@@ -659,7 +647,7 @@ Once backend is running, interactive API docs available at:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-No manual documentation needed - FastAPI generates it automatically! 🎉
+No manual documentation needed - FastAPI generates it automatically!
 
 ---
 
