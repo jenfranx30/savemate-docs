@@ -534,14 +534,14 @@ class Category(Document):
 | `is_active` | bool | Yes | Whether category is visible |
 
 ### Suggested Categories:
-1. 🍔 Food & Dining
-2. 🛍️ Shopping & Retail
-3. 💇 Beauty & Wellness
+1. 🍔 Food and Dining
+2. 🛍️ Shopping and Retail
+3. 💇 Beauty and Wellness
 4. 🎭 Entertainment
-5. 🏋️ Fitness & Sports
-6. 🏨 Travel & Hotels
+5. 🏋️ Fitness and Sports
+6. 🏨 Travel and Hotels
 7. 🚗 Automotive
-8. 🏠 Home & Garden
+8. 🏠 Home and Garden
 9. 📚 Education
 10. 💼 Services
 
