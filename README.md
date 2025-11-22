@@ -9,7 +9,7 @@
 
 ## About SaveMate
 
-SaveMate is a web application that helps users discover local deals and discounts while allowing businesses to post and manage their promotional offers. Built using the MERN stack (MongoDB, Express.js, React.js, Node.js) with Kanban methodology.
+SaveMate is a web application that helps users discover local deals and discounts while allowing businesses to post and manage their promotional offers. Built using the React + FastAPI + MongoDB stack development with Kanban methodology.
 
 ---
 
@@ -18,7 +18,7 @@ SaveMate is a web application that helps users discover local deals and discount
 This repository contains all project documentation for SaveMate:
 
 ### **Core Documentation:**
-- [TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md) - Complete technology stack decisions and justifications
+- [https://github.com/jenfranx30/savemate-docs/blob/main/savemate_stack_analysis.md] - Complete technology stack decisions and justifications
 
 ### **Additional Documentation** (to be added):
 - API_DOCUMENTATION.md - RESTful API endpoints and usage
@@ -34,8 +34,8 @@ This repository contains all project documentation for SaveMate:
 ```
 SaveMate Project/
 ├── savemate-docs/         (This repository - Documentation)
-├── savemate-frontend/     (React application - to be created)
-└── savemate-backend/      (Node.js/Express API - to be created)
+├── savemate-frontend/     (React application)
+└── savemate-backend/      (Python + FastAPI)
 ```
 
 ---
@@ -43,25 +43,37 @@ SaveMate Project/
 ##  Technology Stack
 
 ### Frontend
-- React 18.x
-- Tailwind CSS 3.x
-- React Router v6
-- React Context API
-- React Leaflet
+- Framework: React 18
+- Routing: React Router v6
+- State Management: Context API/Redux Toolkit
+- Styling: Tailwind CSS
+- HTTP Client: Axios
+- Maps: React Leaflet or Google Maps API
+- Image Display: Coudinary
+- Form Handling: React Hook Form + Yup validation
+- Date Handling: date-fns or dayjs
+- Notifications: React Toastify
 
 ### Backend
-- Node.js 18+
-- Express.js 4.x
-- MongoDB Atlas
-- Mongoose 7.x
-- JWT Authentication
+- Language and Runtime: Python 3.11+
+- Framework: FastAPI
+- Database: MongoDB
+- Async Driver: Motor (async MongoDB driver)
+- Authentication: JWT (JSON Web Tokens)
+- Password Hashing: Passlib (bcrypt)
+- File Upload: FastAPI UploadFile + Cloudinary Python SDK
+- Validation: Pydantic v2 (built-in with FastAPI)
+- CORS: FastAPI CORS middleware
+- Environment: python-dotenv
+- API Style: RESTful API
+- API Documentation: Automatic Swagger UI (FastAPI built-in)
 
 ### Cloud Services
 - Cloudinary (Image storage)
 - Vercel (Frontend hosting)
 - Render (Backend hosting)
 
-**Full details:** See [TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md)
+**Full details:** See [https://github.com/jenfranx30/savemate-docs/blob/main/savemate_stack_analysis.md)
 
 ---
 
@@ -69,11 +81,11 @@ SaveMate Project/
 
 | Member | Role | Responsibilities |
 |--------|------|-----------------|
-| JY | Full-stack Developer | Frontend and Backend development |
-| RI | Backend Developer | API development, Database design |
-| MR | Frontend Developer | Backend and Integration |
-| RY | Full-stack Developer | UI/UX, React components |
-| SS | Full-stack Developer | Features and Testing |
+| Jenefer Yago | Full-stack Developer | Frontend and Backend development |
+| Rustam Islamov | Backend Developer | API development, Database design |
+| Mahammad Rustamov | Frontend Developer | Backend and Integration |
+| Rustam Yariyev | Full-stack Developer | UI/UX, React components |
+| Sadig Shiklayihev | Full-stack Developer | Features and Testing |
 
 ---
 
@@ -121,24 +133,18 @@ SaveMate Project/
 ##  Related Repositories
 
 - **Documentation:** [savemate-docs](https://github.com/jenfranx30/savemate-docs) (This repo)
-- **Frontend:** Coming soon
-- **Backend:** Coming soon
+- **Frontend:** [https://github.com/jenfranx30/savemate-frontend]
+- **Backend:** [https://github.com/jenfranx30/savemate-backend]
 
 ---
 
 ##  How to Use This Documentation
 
 ### For Team Members:
-1. Start with [TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md) to understand all technology decisions
+1. Start with [https://github.com/jenfranx30/savemate-docs/blob/main/savemate_stack_analysis.md] to understand all technology decisions
 2. Refer to API documentation when implementing backend endpoints
 3. Follow database schema when creating Mongoose models
 4. Use deployment guide for production deployment
-
-### For Evaluators:
-1. Review [TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md) for technology justifications
-2. Check project timeline for Kanban methodology implementation
-3. Review weekly progress through commit history
-4. See final report for complete project analysis
 
 ---
 
