@@ -1,94 +1,100 @@
 # SaveMate API Documentation
-## RESTful API Endpoints - FastAPI Backend
+
+Complete API documentation for SaveMate - Local Deals Platform Backend
+
+**Version:** 1.0.0  
+**Base URL:** `http://localhost:8000`  
+**API Prefix:** `/api/v1`  
+**Last Updated:** November 24, 2025
 
 ---
 
-## Base Information
+## Table of Contents
 
-**Base URL**: `http://localhost:8000/api/v1`
-**Production URL**: `https://api.savemate.com/api/v1` (when deployed)
-
-**API Version**: v1
-**Framework**: FastAPI 0.104+
-**Authentication**: JWT Bearer Token
-**Content-Type**: `application/json`
-
-**Interactive Documentation**:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+1. [Authentication](#authentication)
+2. [Deals](#deals)
+3. [Businesses](#businesses)
+4. [Favorites](#favorites)
+5. [Reviews](#reviews)
+6. [Error Codes](#error-codes)
+7. [Rate Limiting](#rate-limiting)
 
 ---
 
-## Authentication
+## 🔐 Authentication
 
-All protected endpoints require a JWT token in the Authorization header:
+All authenticated endpoints require a valid JWT token in the Authorization header:
 
 ```
-Authorization: Bearer <access_token>
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-### Token Structure:
+### Token Expiration
+- **Access Token:** 30 minutes
+- **Refresh Token:** 7 days
+
+---
+
+## 1️⃣ Authentication Endpoints
+
+### 1.1 Register User
+
+Create a new user account.
+
+**Endpoint:** `POST /api/v1/auth/register`  
+**Authentication:** Not required
+
+**Request Body:**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer",
-  "expires_in": 1800
-}
-```
-
----
-
-## 1. AUTHENTICATION ENDPOINTS
-
-### **POST** `/auth/register`
-Register a new user account.
-
-**Request Body**:
-```json
-{
-  "email": "john.doe@example.com",
+  "email": "user@example.com",
   "username": "johndoe",
   "password": "SecurePass123!",
-  "full_name": "John Doe"
+  "full_name": "John Doe",
+  "is_business_owner": false
 }
 ```
 
-**Response** (201 Created):
+**Validation Rules:**
+- Email: Valid email format, unique
+- Username: Alphanumeric + underscore, unique, 3-30 characters
+- Password: Minimum 8 characters
+- Full name: 2-100 characters
+
+**Success Response (201 Created):**
 ```json
 {
   "message": "User registered successfully",
+  "tokens": {
+    "access_token": "eyJhbGci...",
+    "refresh_token": "eyJhbGci...",
+    "token_type": "bearer"
+  },
   "user": {
     "id": "507f1f77bcf86cd799439011",
-    "email": "john.doe@example.com",
+    "email": "user@example.com",
     "username": "johndoe",
     "full_name": "John Doe",
-    "created_at": "2025-11-22T10:00:00Z"
-  },
-  "tokens": {
-    "access_token": "eyJ...",
-    "refresh_token": "eyJ...",
-    "token_type": "bearer"
+    "is_business_owner": false,
+    "created_at": "2025-11-24T10:00:00"
   }
 }
 ```
 
-**Validation**:
-- Email: Valid email format, unique
-- Username: 3-30 chars, alphanumeric + underscore, unique
-- Password: Min 8 chars, at least 1 uppercase, 1 lowercase, 1 number
-- Full name: Required
-
-**Errors**:
-- `400`: Invalid input data
-- `409`: Email or username already exists
+**Error Responses:**
+- `400 Bad Request` - Email or username already exists
+- `422 Unprocessable Entity` - Validation error
 
 ---
 
-### **POST** `/auth/login`
-Login with email/username and password.
+### 1.2 Login
 
-**Request Body**:
+Authenticate user and receive tokens.
+
+**Endpoint:** `POST /api/v1/auth/login`  
+**Authentication:** Not required
+
+**Request Body:**
 ```json
 {
   "email_or_username": "johndoe",
@@ -96,1017 +102,623 @@ Login with email/username and password.
 }
 ```
 
-**Response** (200 OK):
+**Success Response (200 OK):**
 ```json
 {
   "message": "Login successful",
+  "tokens": {
+    "access_token": "eyJhbGci...",
+    "refresh_token": "eyJhbGci...",
+    "token_type": "bearer"
+  },
   "user": {
     "id": "507f1f77bcf86cd799439011",
-    "email": "john.doe@example.com",
+    "email": "user@example.com",
     "username": "johndoe",
     "full_name": "John Doe",
-    "profile_picture": "https://res.cloudinary.com/..."
-  },
-  "tokens": {
-    "access_token": "eyJ...",
-    "refresh_token": "eyJ...",
-    "token_type": "bearer",
-    "expires_in": 1800
+    "is_business_owner": false
   }
 }
 ```
 
-**Errors**:
-- `401`: Invalid credentials
-- `404`: User not found
+**Error Responses:**
+- `401 Unauthorized` - Invalid credentials
+- `422 Unprocessable Entity` - Validation error
 
 ---
 
-### **POST** `/auth/refresh`
-Refresh access token using refresh token.
+### 1.3 Refresh Token
 
-**Request Body**:
+Get new access token using refresh token.
+
+**Endpoint:** `POST /api/v1/auth/refresh`  
+**Authentication:** Not required (uses refresh token)
+
+**Request Body:**
 ```json
 {
-  "refresh_token": "eyJ..."
+  "refresh_token": "eyJhbGci..."
 }
 ```
 
-**Response** (200 OK):
+**Success Response (200 OK):**
 ```json
 {
-  "access_token": "eyJ...",
-  "token_type": "bearer",
-  "expires_in": 1800
+  "access_token": "eyJhbGci...",
+  "refresh_token": "eyJhbGci...",
+  "token_type": "bearer"
 }
 ```
 
-**Errors**:
-- `401`: Invalid or expired refresh token
+**Error Responses:**
+- `401 Unauthorized` - Invalid or expired refresh token
 
 ---
 
-### **POST** `/auth/logout`
-Logout user (invalidate tokens).
+## 2️⃣ Deals Endpoints
 
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
+### 2.1 Create Deal
 
-**Response** (200 OK):
+Create a new deal listing.
+
+**Endpoint:** `POST /api/v1/deals/`  
+**Authentication:** Required
+
+**Request Body:**
 ```json
 {
-  "message": "Logout successful"
-}
-```
-
----
-
-### **POST** `/auth/forgot-password`
-Request password reset email.
-
-**Request Body**:
-```json
-{
-  "email": "john.doe@example.com"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Password reset link sent to email"
-}
-```
-
----
-
-### **POST** `/auth/reset-password`
-Reset password with token from email.
-
-**Request Body**:
-```json
-{
-  "token": "reset_token_here",
-  "new_password": "NewSecurePass123!"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Password reset successful"
-}
-```
-
-**Errors**:
-- `400`: Invalid or expired token
-
----
-
-## 2. USER ENDPOINTS
-
-### **GET** `/users/me`
-Get current user profile (authenticated).
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "email": "john.doe@example.com",
-  "username": "johndoe",
-  "full_name": "John Doe",
-  "profile_picture": "https://res.cloudinary.com/...",
-  "bio": "Food enthusiast and deal hunter",
+  "title": "50% Off Large Pizza",
+  "description": "Get half off any large pizza with 3+ toppings. Valid for dine-in and takeout.",
+  "original_price": 39.99,
+  "discounted_price": 19.99,
+  "category": "food",
+  "tags": ["pizza", "italian", "dinner", "warsaw"],
+  "business_name": "Mario's Pizzeria",
   "location": {
-    "type": "Point",
-    "coordinates": [21.0122, 52.2297]
-  },
-  "preferences": {
-    "favorite_categories": ["food-dining", "entertainment"],
-    "notification_radius": 5.0,
-    "email_notifications": true
-  },
-  "saved_deals": ["507f1f77bcf86cd799439012", "507f1f77bcf86cd799439013"],
-  "is_business_owner": false,
-  "created_at": "2025-11-01T10:00:00Z",
-  "updated_at": "2025-11-22T10:00:00Z"
-}
-```
-
----
-
-### **PUT** `/users/me`
-Update current user profile.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body** (all fields optional):
-```json
-{
-  "full_name": "John A. Doe",
-  "bio": "Updated bio",
-  "phone": "+48 123 456 789",
-  "location": {
-    "type": "Point",
-    "coordinates": [21.0122, 52.2297]
-  },
-  "preferences": {
-    "favorite_categories": ["food-dining", "shopping"],
-    "notification_radius": 10.0,
-    "email_notifications": false
-  }
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Profile updated successfully",
-  "user": { /* updated user object */ }
-}
-```
-
----
-
-### **DELETE** `/users/me`
-Delete current user account.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body**:
-```json
-{
-  "password": "SecurePass123!",
-  "confirmation": "DELETE"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Account deleted successfully"
-}
-```
-
----
-
-### **POST** `/users/me/avatar`
-Upload profile picture.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-Content-Type: multipart/form-data
-```
-
-**Request Body** (form-data):
-```
-file: [image file]
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Avatar uploaded successfully",
-  "profile_picture": "https://res.cloudinary.com/..."
-}
-```
-
-**Constraints**:
-- Max file size: 5MB
-- Allowed formats: jpg, jpeg, png, webp
-- Auto-resized to 400x400
-
----
-
-### **GET** `/users/{user_id}`
-Get public user profile by ID.
-
-**Response** (200 OK):
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "username": "johndoe",
-  "full_name": "John Doe",
-  "profile_picture": "https://res.cloudinary.com/...",
-  "bio": "Food enthusiast",
-  "is_business_owner": false,
-  "member_since": "2025-11-01T10:00:00Z"
-}
-```
-
-**Note**: Only public information returned (no email, saved deals, etc.)
-
----
-
-### **GET** `/users/me/saved-deals`
-Get user's saved deals.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Query Parameters**:
-- `page` (int, default: 1)
-- `limit` (int, default: 20, max: 100)
-
-**Response** (200 OK):
-```json
-{
-  "deals": [
-    {
-      "id": "507f1f77bcf86cd799439012",
-      "title": "50% Off Pizza",
-      "business_name": "Pizza Palace",
-      "discount_percentage": 50,
-      "valid_until": "2025-12-31T23:59:59Z",
-      /* ... other deal fields */
-    }
-  ],
-  "total": 5,
-  "page": 1,
-  "pages": 1
-}
-```
-
----
-
-### **POST** `/users/me/saved-deals/{deal_id}`
-Save a deal to favorites.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Deal saved successfully"
-}
-```
-
----
-
-### **DELETE** `/users/me/saved-deals/{deal_id}`
-Remove deal from favorites.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Deal removed from saved"
-}
-```
-
----
-
-## 3. DEAL ENDPOINTS
-
-### **GET** `/deals`
-Get all deals with filtering and pagination.
-
-**Query Parameters**:
-```
-?page=1
-&limit=20
-&category=food-dining
-&min_discount=20
-&max_price=100
-&lat=52.2297
-&lng=21.0122
-&radius=5
-&sort=newest|popular|discount|expiring
-&search=pizza
-```
-
-**Response** (200 OK):
-```json
-{
-  "deals": [
-    {
-      "id": "507f1f77bcf86cd799439012",
-      "title": "50% Off All Pizzas",
-      "description": "Get half price on any pizza...",
-      "business": {
-        "id": "507f1f77bcf86cd799439013",
-        "name": "Pizza Palace",
-        "logo": "https://res.cloudinary.com/..."
-      },
-      "category": {
-        "id": "507f1f77bcf86cd799439014",
-        "name": "Food & Dining",
-        "slug": "food-dining"
-      },
-      "original_price": 40.0,
-      "discounted_price": 20.0,
-      "discount_percentage": 50.0,
-      "currency": "PLN",
-      "images": ["https://res.cloudinary.com/..."],
-      "location": {
-        "type": "Point",
-        "coordinates": [21.0122, 52.2297]
-      },
-      "address": {
-        "street": "ul. Marszałkowska 123",
-        "city": "Warsaw",
-        "zip_code": "00-001"
-      },
-      "valid_from": "2025-11-22T00:00:00Z",
-      "valid_until": "2025-12-31T23:59:59Z",
-      "days_remaining": 39,
-      "views_count": 1250,
-      "saves_count": 342,
-      "is_active": true,
-      "is_expired": false,
-      "created_at": "2025-11-20T10:00:00Z"
-    }
-  ],
-  "total": 150,
-  "page": 1,
-  "pages": 8,
-  "limit": 20
-}
-```
-
-**Sort Options**:
-- `newest`: Most recently created
-- `popular`: Most saves/views
-- `discount`: Highest discount percentage
-- `expiring`: Ending soonest
-
----
-
-### **POST** `/deals`
-Create a new deal (business owners only).
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body**:
-```json
-{
-  "title": "50% Off All Pizzas",
-  "description": "Get half price on any pizza during lunch hours (11 AM - 3 PM)",
-  "business_id": "507f1f77bcf86cd799439013",
-  "category_id": "507f1f77bcf86cd799439014",
-  "original_price": 40.0,
-  "discounted_price": 20.0,
-  "valid_from": "2025-11-22T00:00:00Z",
-  "valid_until": "2025-12-31T23:59:59Z",
-  "terms_conditions": "Valid for dine-in only. One per customer.",
-  "redemption_code": "PIZZA50",
-  "max_redemptions": 100,
-  "location": {
-    "type": "Point",
-    "coordinates": [21.0122, 52.2297]
-  },
-  "address": {
-    "street": "ul. Marszałkowska 123",
+    "address": "ul. Marszałkowska 123",
     "city": "Warsaw",
-    "state": "Mazovia",
-    "zip_code": "00-001",
-    "country": "Poland"
-  }
+    "postal_code": "00-001",
+    "country": "Poland",
+    "latitude": 52.2297,
+    "longitude": 21.0122
+  },
+  "end_date": "2025-12-31T23:59:59",
+  "start_date": "2025-11-24T00:00:00",
+  "image_url": "https://example.com/pizza.jpg",
+  "additional_images": ["https://example.com/pizza2.jpg"],
+  "terms": "One per customer. Valid Monday-Thursday only.",
+  "quantity_available": 100
 }
 ```
 
-**Response** (201 Created):
+**Categories:** `food`, `drinks`, `shopping`, `entertainment`, `health`, `beauty`, `services`, `travel`, `electronics`, `other`
+
+**Success Response (201 Created):**
 ```json
 {
-  "message": "Deal created successfully",
-  "deal": { /* full deal object */ },
-  "id": "507f1f77bcf86cd799439012"
+  "id": "507f1f77bcf86cd799439011",
+  "title": "50% Off Large Pizza",
+  "description": "Get half off any large pizza...",
+  "original_price": 39.99,
+  "discounted_price": 19.99,
+  "discount_percentage": 50,
+  "category": "food",
+  "tags": ["pizza", "italian", "dinner", "warsaw"],
+  "business_id": "temp_user_id",
+  "business_name": "Mario's Pizzeria",
+  "location": {...},
+  "start_date": "2025-11-24T00:00:00",
+  "end_date": "2025-12-31T23:59:59",
+  "status": "active",
+  "is_featured": false,
+  "image_url": "https://example.com/pizza.jpg",
+  "additional_images": [],
+  "views_count": 0,
+  "saves_count": 0,
+  "terms": "One per customer...",
+  "quantity_available": 100,
+  "created_at": "2025-11-24T10:00:00",
+  "updated_at": "2025-11-24T10:00:00",
+  "created_by": "temp_user_id"
 }
 ```
-
-**Validation**:
-- User must own the business
-- Valid_until must be in the future
-- Discounted_price < Original_price
-- All required fields present
 
 ---
 
-### **GET** `/deals/{deal_id}`
-Get single deal by ID.
+### 2.2 Get All Deals
 
-**Response** (200 OK):
+Retrieve deals with filtering, pagination, and sorting.
+
+**Endpoint:** `GET /api/v1/deals/`  
+**Authentication:** Not required
+
+**Query Parameters:**
+- `category` (optional): Filter by category
+- `city` (optional): Filter by city (case-insensitive)
+- `min_discount` (optional): Minimum discount percentage (0-100)
+- `max_price` (optional): Maximum discounted price
+- `search` (optional): Search in title, description, business name, tags
+- `is_featured` (optional): Filter featured deals (true/false)
+- `deal_status` (optional): active, expired, pending, inactive (default: active)
+- `page` (optional): Page number (default: 1)
+- `page_size` (optional): Items per page (1-100, default: 10)
+- `sort_by` (optional): created_at, discount_percentage, discounted_price, end_date (default: created_at)
+- `sort_order` (optional): asc, desc (default: desc)
+
+**Example Request:**
+```
+GET /api/v1/deals/?category=food&city=Warsaw&min_discount=30&page=1&page_size=10
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "deals": [...],
+  "total": 45,
+  "page": 1,
+  "page_size": 10,
+  "total_pages": 5
+}
+```
+
+---
+
+### 2.3 Get Single Deal
+
+Get detailed information about a specific deal.
+
+**Endpoint:** `GET /api/v1/deals/{deal_id}`  
+**Authentication:** Not required
+
+**Success Response (200 OK):**
+```json
+{
+  "id": "507f1f77bcf86cd799439011",
+  "title": "50% Off Large Pizza",
+  ...
+  "views_count": 151
+}
+```
+
+**Note:** View count increments automatically.
+
+---
+
+### 2.4 Update Deal
+
+Update an existing deal.
+
+**Endpoint:** `PUT /api/v1/deals/{deal_id}`  
+**Authentication:** Required (must be deal owner)
+
+**Request Body:** (all fields optional)
+```json
+{
+  "title": "60% Off Large Pizza - Extended!",
+  "discounted_price": 15.99,
+  "end_date": "2026-01-31T23:59:59"
+}
+```
+
+**Success Response (200 OK):**
+Returns updated deal object with recalculated discount_percentage.
+
+---
+
+### 2.5 Delete Deal
+
+Delete a deal.
+
+**Endpoint:** `DELETE /api/v1/deals/{deal_id}`  
+**Authentication:** Required (must be deal owner)
+
+**Success Response (200 OK):**
+```json
+{
+  "message": "Deal deleted successfully",
+  "deal_id": "507f1f77bcf86cd799439011"
+}
+```
+
+---
+
+### 2.6 Get Deals by Category
+
+Get deals for a specific category.
+
+**Endpoint:** `GET /api/v1/deals/category/{category}`  
+**Authentication:** Not required
+
+**Query Parameters:**
+- `limit` (optional): Max results (1-100, default: 20)
+
+**Success Response (200 OK):**
+```json
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "title": "50% Off Pizza",
+    "discounted_price": 19.99,
+    "discount_percentage": 50,
+    "category": "food",
+    "business_name": "Mario's Pizzeria",
+    "city": "Warsaw",
+    "image_url": "https://example.com/pizza.jpg",
+    "end_date": "2025-12-31T23:59:59",
+    "status": "active"
+  }
+]
+```
+
+---
+
+## 3️⃣ Business Endpoints
+
+### 3.1 Create Business
+
+Register a new business profile.
+
+**Endpoint:** `POST /api/v1/businesses/`  
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "business_name": "Mario's Pizzeria",
+  "description": "Authentic Italian pizza in Warsaw. Family-owned since 1995.",
+  "category": "restaurant",
+  "email": "info@mariospizza.pl",
+  "phone": "+48 22 123 4567",
+  "website": "https://mariospizza.pl",
+  "location": {
+    "address": "ul. Marszałkowska 123",
+    "city": "Warsaw",
+    "postal_code": "00-001",
+    "country": "Poland"
+  },
+  "logo_url": "https://example.com/logo.png",
+  "operating_hours": [
+    {
+      "day": "Monday",
+      "open_time": "11:00",
+      "close_time": "22:00",
+      "is_closed": false
+    },
+    {
+      "day": "Sunday",
+      "is_closed": true
+    }
+  ],
+  "tags": ["italian", "pizza", "restaurant"]
+}
+```
+
+**Business Categories:** `restaurant`, `cafe`, `retail`, `grocery`, `beauty`, `fitness`, `entertainment`, `services`, `healthcare`, `other`
+
+**Success Response (201 Created):**
 ```json
 {
   "id": "507f1f77bcf86cd799439012",
-  "title": "50% Off All Pizzas",
-  /* ... full deal object with business and category info ... */
-}
-```
-
-**Side Effect**: Increments `views_count` by 1
-
----
-
-### **PUT** `/deals/{deal_id}`
-Update deal (owner only).
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body** (all fields optional):
-```json
-{
-  "title": "Updated Title",
-  "description": "Updated description",
-  "discounted_price": 15.0,
-  "valid_until": "2025-12-31T23:59:59Z",
-  "is_active": true
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Deal updated successfully",
-  "deal": { /* updated deal object */ }
-}
-```
-
-**Authorization**: Must be deal creator or business owner
-
----
-
-### **DELETE** `/deals/{deal_id}`
-Delete deal (owner only).
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Deal deleted successfully"
+  "owner_id": "507f1f77bcf86cd799439011",
+  "business_name": "Mario's Pizzeria",
+  "description": "Authentic Italian pizza...",
+  "category": "restaurant",
+  "email": "info@mariospizza.pl",
+  "phone": "+48 22 123 4567",
+  "website": "https://mariospizza.pl",
+  "location": {...},
+  "logo_url": "https://example.com/logo.png",
+  "operating_hours": [...],
+  "status": "pending",
+  "is_verified": false,
+  "rating_average": 0.0,
+  "rating_count": 0,
+  "total_deals": 0,
+  "active_deals": 0,
+  "followers_count": 0,
+  "tags": ["italian", "pizza", "restaurant"],
+  "created_at": "2025-11-24T10:00:00",
+  "updated_at": "2025-11-24T10:00:00"
 }
 ```
 
 ---
 
-### **GET** `/deals/nearby`
-Get deals near a location (optimized geospatial query).
+### 3.2 Get All Businesses
 
-**Query Parameters**:
-```
-?lat=52.2297
-&lng=21.0122
-&radius=5          # km
-&category=food-dining
-&limit=20
-```
+**Endpoint:** `GET /api/v1/businesses/`  
+**Authentication:** Not required
 
-**Response**: Same as GET `/deals` but sorted by distance
+**Query Parameters:**
+- `category` (optional): Filter by business category
+- `city` (optional): Filter by city
+- `is_verified` (optional): Filter verified businesses
+- `status_filter` (optional): pending, active, suspended, closed (default: active)
+- `page`, `page_size`: Pagination
 
----
-
-### **GET** `/deals/search`
-Full-text search deals.
-
-**Query Parameters**:
-```
-?q=pizza+restaurant
-&category=food-dining
-&limit=20
-```
-
-**Response**: Same format as GET `/deals`
-
----
-
-### **GET** `/deals/category/{category_slug}`
-Get deals by category.
-
-**Example**: `/deals/category/food-dining`
-
-**Query Parameters**:
-```
-?page=1
-&limit=20
-&sort=newest
-```
-
-**Response**: Same format as GET `/deals`
-
----
-
-### **POST** `/deals/{deal_id}/images`
-Upload images for a deal.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-Content-Type: multipart/form-data
-```
-
-**Request Body** (form-data):
-```
-files: [image1.jpg, image2.jpg, ...]
-```
-
-**Response** (200 OK):
+**Success Response (200 OK):**
 ```json
 {
-  "message": "Images uploaded successfully",
-  "images": [
-    "https://res.cloudinary.com/...",
-    "https://res.cloudinary.com/..."
-  ]
+  "businesses": [...],
+  "total": 25,
+  "page": 1,
+  "page_size": 10,
+  "total_pages": 3
 }
 ```
 
-**Constraints**:
-- Max 5 images per deal
-- Max 5MB per image
-- Formats: jpg, jpeg, png, webp
+---
+
+### 3.3 Get Single Business
+
+**Endpoint:** `GET /api/v1/businesses/{business_id}`  
+**Authentication:** Not required
+
+Returns complete business information.
 
 ---
 
-## 4. BUSINESS ENDPOINTS
+### 3.4 Update Business
 
-### **GET** `/businesses`
-Get all businesses.
+**Endpoint:** `PUT /api/v1/businesses/{business_id}`  
+**Authentication:** Required (must be owner)
 
-**Query Parameters**:
-```
-?page=1
-&limit=20
-&category=restaurant
-&lat=52.2297
-&lng=21.0122
-&radius=10
-&verified=true
-&search=pizza
-```
+---
 
-**Response** (200 OK):
+### 3.5 Delete Business
+
+**Endpoint:** `DELETE /api/v1/businesses/{business_id}`  
+**Authentication:** Required (must be owner)
+
+---
+
+### 3.6 Get User's Businesses
+
+**Endpoint:** `GET /api/v1/businesses/owner/{user_id}`  
+**Authentication:** Not required
+
+Returns all businesses owned by a specific user.
+
+---
+
+### 3.7 Get Business Deals
+
+**Endpoint:** `GET /api/v1/businesses/{business_id}/deals`  
+**Authentication:** Not required
+
+Returns all deals from a specific business.
+
+---
+
+## 4️⃣ Favorites Endpoints
+
+### 4.1 Add to Favorites
+
+**Endpoint:** `POST /api/v1/favorites/`  
+**Authentication:** Required
+
+**Request Body:**
 ```json
 {
-  "businesses": [
+  "deal_id": "507f1f77bcf86cd799439011"
+}
+```
+
+**Success Response (201 Created):**
+```json
+{
+  "id": "507f1f77bcf86cd799439013",
+  "user_id": "507f1f77bcf86cd799439010",
+  "deal_id": "507f1f77bcf86cd799439011",
+  "created_at": "2025-11-24T10:00:00"
+}
+```
+
+**Note:** Automatically increments deal's `saves_count`.
+
+---
+
+### 4.2 Remove from Favorites
+
+**Endpoint:** `DELETE /api/v1/favorites/{deal_id}`  
+**Authentication:** Required
+
+**Success Response (200 OK):**
+```json
+{
+  "message": "Removed from favorites",
+  "deal_id": "507f1f77bcf86cd799439011"
+}
+```
+
+---
+
+### 4.3 Get User Favorites
+
+**Endpoint:** `GET /api/v1/favorites/`  
+**Authentication:** Required
+
+**Success Response (200 OK):**
+```json
+{
+  "favorites": [
     {
       "id": "507f1f77bcf86cd799439013",
-      "name": "Pizza Palace",
-      "description": "Best pizza in Warsaw since 2010",
-      "category": "Restaurant",
-      "logo": "https://res.cloudinary.com/...",
-      "cover_image": "https://res.cloudinary.com/...",
-      "location": {
-        "type": "Point",
-        "coordinates": [21.0122, 52.2297]
-      },
-      "address": {
-        "street": "ul. Marszałkowska 123",
-        "city": "Warsaw",
-        "zip_code": "00-001"
-      },
-      "contact": {
-        "phone": "+48 22 123 4567",
-        "email": "contact@pizzapalace.pl",
-        "website": "https://pizzapalace.pl"
-      },
-      "rating": 4.5,
-      "total_reviews": 328,
-      "total_deals": 12,
-      "is_verified": true,
-      "created_at": "2025-01-15T10:00:00Z"
+      "user_id": "507f1f77bcf86cd799439010",
+      "deal_id": "507f1f77bcf86cd799439011",
+      "created_at": "2025-11-24T10:00:00",
+      "deal": {
+        "id": "507f1f77bcf86cd799439011",
+        "title": "50% Off Pizza",
+        "discounted_price": 19.99,
+        "discount_percentage": 50,
+        "category": "food",
+        "business_name": "Mario's Pizzeria",
+        "image_url": "https://example.com/pizza.jpg",
+        "status": "active",
+        "end_date": "2025-12-31T23:59:59"
+      }
     }
   ],
-  "total": 45,
-  "page": 1,
-  "pages": 3
+  "total": 5
 }
 ```
 
 ---
 
-### **POST** `/businesses`
-Create a new business.
+### 4.4 Check if Favorited
 
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
+**Endpoint:** `GET /api/v1/favorites/check/{deal_id}`  
+**Authentication:** Required
 
-**Request Body**:
+**Success Response (200 OK):**
 ```json
 {
-  "name": "Pizza Palace",
-  "description": "Best pizza in Warsaw since 2010",
-  "category": "Restaurant",
-  "location": {
-    "type": "Point",
-    "coordinates": [21.0122, 52.2297]
-  },
-  "address": {
-    "street": "ul. Marszałkowska 123",
-    "city": "Warsaw",
-    "state": "Mazovia",
-    "zip_code": "00-001",
-    "country": "Poland"
-  },
-  "contact": {
-    "phone": "+48 22 123 4567",
-    "email": "contact@pizzapalace.pl",
-    "website": "https://pizzapalace.pl"
-  },
-  "operating_hours": {
-    "monday": {"open": "09:00", "close": "22:00"},
-    "tuesday": {"open": "09:00", "close": "22:00"},
-    "sunday": {"closed": true}
-  }
-}
-```
-
-**Response** (201 Created):
-```json
-{
-  "message": "Business created successfully",
-  "business": { /* full business object */ },
-  "id": "507f1f77bcf86cd799439013"
-}
-```
-
-**Side Effect**: User's `is_business_owner` set to `true`
-
----
-
-### **GET** `/businesses/{business_id}`
-Get business by ID.
-
-**Response** (200 OK):
-```json
-{
-  /* Full business object with all details */
+  "is_favorited": true,
+  "deal_id": "507f1f77bcf86cd799439011"
 }
 ```
 
 ---
 
-### **PUT** `/businesses/{business_id}`
-Update business (owner only).
+## 5️⃣ Reviews Endpoints
 
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
+### 5.1 Create Review
 
-**Request Body** (all fields optional):
+**Endpoint:** `POST /api/v1/reviews/`  
+**Authentication:** Required
+
+**Request Body:**
 ```json
 {
-  "description": "Updated description",
-  "contact": {
-    "phone": "+48 22 999 8888"
-  }
+  "deal_id": "507f1f77bcf86cd799439011",
+  "rating": 5,
+  "title": "Amazing pizza deal!",
+  "comment": "The pizza was delicious and the discount was fantastic. Highly recommend!"
 }
 ```
 
-**Response** (200 OK):
-```json
-{
-  "message": "Business updated successfully",
-  "business": { /* updated business object */ }
-}
-```
+**Validation:**
+- Rating: 1-5 (integer)
+- Comment: 10-500 characters
+- One review per user per deal
 
----
-
-### **DELETE** `/businesses/{business_id}`
-Delete business (owner only).
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Business deleted successfully"
-}
-```
-
-**Note**: All deals associated with business will be deactivated
-
----
-
-### **GET** `/businesses/{business_id}/deals`
-Get all deals for a specific business.
-
-**Query Parameters**:
-```
-?page=1
-&limit=20
-&active=true
-```
-
-**Response**: Same format as GET `/deals`
-
----
-
-### **POST** `/businesses/{business_id}/logo`
-Upload business logo.
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-Content-Type: multipart/form-data
-```
-
-**Request Body** (form-data):
-```
-file: [image file]
-```
-
-**Response** (200 OK):
-```json
-{
-  "message": "Logo uploaded successfully",
-  "logo": "https://res.cloudinary.com/..."
-}
-```
-
----
-
-## 5. CATEGORY ENDPOINTS
-
-### **GET** `/categories`
-Get all categories.
-
-**Query Parameters**:
-```
-?active=true
-&featured=true
-```
-
-**Response** (200 OK):
-```json
-{
-  "categories": [
-    {
-      "id": "507f1f77bcf86cd799439014",
-      "name": "Food & Dining",
-      "slug": "food-dining",
-      "description": "Restaurants, cafes, and food delivery",
-      "icon": "🍔",
-      "color": "#EF4444",
-      "deals_count": 145,
-      "is_active": true,
-      "is_featured": true
-    }
-  ],
-  "total": 10
-}
-```
-
----
-
-### **POST** `/categories`
-Create new category (admin only).
-
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-X-Admin-Token: <admin_secret>
-```
-
-**Request Body**:
-```json
-{
-  "name": "Food & Dining",
-  "slug": "food-dining",
-  "description": "Restaurants and cafes",
-  "icon": "🍔",
-  "color": "#EF4444",
-  "is_featured": true
-}
-```
-
-**Response** (201 Created):
-```json
-{
-  "message": "Category created successfully",
-  "category": { /* full category object */ }
-}
-```
-
----
-
-### **GET** `/categories/{category_id}`
-Get category by ID.
-
-**Response** (200 OK):
+**Success Response (201 Created):**
 ```json
 {
   "id": "507f1f77bcf86cd799439014",
-  "name": "Food & Dining",
-  /* ... full category object ... */
+  "deal_id": "507f1f77bcf86cd799439011",
+  "user_id": "507f1f77bcf86cd799439010",
+  "business_id": "507f1f77bcf86cd799439012",
+  "rating": 5,
+  "title": "Amazing pizza deal!",
+  "comment": "The pizza was delicious...",
+  "helpful_count": 0,
+  "is_verified_purchase": false,
+  "created_at": "2025-11-24T10:00:00",
+  "updated_at": "2025-11-24T10:00:00"
 }
 ```
 
+**Note:** Automatically updates business rating average.
+
 ---
 
-### **PUT** `/categories/{category_id}`
-Update category (admin only).
+### 5.2 Get Deal Reviews
 
-**Headers**: 
-```
-Authorization: Bearer <access_token>
-X-Admin-Token: <admin_secret>
-```
+**Endpoint:** `GET /api/v1/reviews/deal/{deal_id}`  
+**Authentication:** Not required
 
-**Request Body**:
+**Success Response (200 OK):**
 ```json
 {
-  "name": "Updated Name",
-  "is_active": false
+  "reviews": [...],
+  "total": 15,
+  "average_rating": 4.7
 }
 ```
 
-**Response** (200 OK):
+---
+
+### 5.3 Get User Reviews
+
+**Endpoint:** `GET /api/v1/reviews/user/{user_id}`  
+**Authentication:** Not required
+
+Returns all reviews by a specific user.
+
+---
+
+### 5.4 Update Review
+
+**Endpoint:** `PUT /api/v1/reviews/{review_id}`  
+**Authentication:** Required (must be review author)
+
+**Request Body:**
 ```json
 {
-  "message": "Category updated successfully",
-  "category": { /* updated object */ }
+  "rating": 4,
+  "comment": "Updated: Still good but service was slower this time."
 }
 ```
 
 ---
 
-### **DELETE** `/categories/{category_id}`
-Delete category (admin only).
+### 5.5 Mark Review as Helpful
 
-**Response** (200 OK):
+**Endpoint:** `POST /api/v1/reviews/{review_id}/helpful`  
+**Authentication:** Not required
+
+**Success Response (200 OK):**
 ```json
 {
-  "message": "Category deleted successfully"
+  "message": "Marked as helpful",
+  "helpful_count": 11
 }
 ```
 
-**Note**: Deals in this category will need to be recategorized
-
 ---
 
-## Error Responses
+## ⚠️ Error Codes
 
-### Standard Error Format:
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 201 | Created |
+| 400 | Bad Request - Invalid input |
+| 401 | Unauthorized - Missing/invalid token |
+| 403 | Forbidden - No permission |
+| 404 | Not Found |
+| 422 | Validation Error |
+| 500 | Internal Server Error |
+
+**Error Response Format:**
 ```json
 {
-  "detail": "Error message",
-  "status_code": 400,
-  "error_type": "ValidationError",
-  "timestamp": "2025-11-22T10:00:00Z"
-}
-```
-
-### Common Status Codes:
-- `200`: Success
-- `201`: Created
-- `204`: No Content
-- `400`: Bad Request (validation error)
-- `401`: Unauthorized (invalid/missing token)
-- `403`: Forbidden (insufficient permissions)
-- `404`: Not Found
-- `409`: Conflict (duplicate resource)
-- `422`: Unprocessable Entity (Pydantic validation)
-- `429`: Too Many Requests (rate limit)
-- `500`: Internal Server Error
-
----
-
-## Rate Limiting
-
-**Default Limits**:
-- Public endpoints: 100 requests/minute
-- Authenticated endpoints: 300 requests/minute
-- Upload endpoints: 20 requests/minute
-
-**Headers**:
-```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1700654400
-```
-
----
-
-## Pagination
-
-**Query Parameters**:
-```
-?page=1        # Page number (1-indexed)
-&limit=20      # Items per page (max 100)
-```
-
-**Response Metadata**:
-```json
-{
-  "data": [...],
-  "total": 150,
-  "page": 1,
-  "pages": 8,
-  "limit": 20,
-  "has_next": true,
-  "has_prev": false
+  "detail": "Error message here"
 }
 ```
 
 ---
 
-## Testing the API
+## 🚦 Rate Limiting
 
-### Using cURL:
-```bash
-# Register
-curl -X POST http://localhost:8000/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","username":"testuser","password":"Test123!","full_name":"Test User"}'
+**Coming in Phase 6**
 
-# Login
-curl -X POST http://localhost:8000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email_or_username":"testuser","password":"Test123!"}'
-
-# Get deals (with token)
-curl -X GET "http://localhost:8000/api/v1/deals?limit=5" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-```
-
-### Using FastAPI Swagger UI:
-1. Run backend: `uvicorn app.main:app --reload`
-2. Open browser: `http://localhost:8000/docs`
-3. Try endpoints interactively
-4. Authorize with JWT token
+Currently no rate limiting is implemented. Production deployment will include:
+- 100 requests per minute per IP
+- 1000 requests per hour per user
+- Special limits for authentication endpoints
 
 ---
 
-*API Documentation v1.0*
-*Last Updated: November 22, 2025*
-*Framework: FastAPI + Python 3.11*
+## 📝 Notes
+
+- All timestamps are in UTC
+- All prices are in PLN (Polish Złoty)
+- MongoDB ObjectId format: 24-character hexadecimal string
+- Bearer token must be included in Authorization header for protected endpoints
+
+---
+
+**For more information, visit:** http://localhost:8000/docs
