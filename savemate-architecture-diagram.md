@@ -1,542 +1,624 @@
-# SaveMate - System Architecture Diagram
+# SaveMate Architecture Diagram
 
-## Complete System Architecture
+Complete system architecture for SaveMate - Local Deals Platform
 
-```mermaid
-graph TB
-    subgraph "Client Layer"
-        WebBrowser[Web Browser]
-        MobileDevice[Mobile Device]
-    end
-
-    subgraph "Frontend - React 18"
-        ReactApp[React Application]
-        Router[React Router v6]
-        StateManagement[Context API / Redux Toolkit]
-        UIComponents[UI Components<br/>Tailwind CSS]
-        HTTPClient[Axios HTTP Client]
-        Maps[React Leaflet<br/>Map Integration]
-    end
-
-    subgraph "Backend - Node.js + Express"
-        ExpressAPI[Express.js API Server]
-        
-        subgraph "Middleware Layer"
-            Auth[JWT Authentication]
-            Validation[Input Validation]
-            ErrorHandler[Error Handler]
-            RateLimiter[Rate Limiter]
-            Security[Security<br/>Helmet.js]
-        end
-        
-        subgraph "Controllers"
-            UserController[User Controller]
-            DealController[Deal Controller]
-            BusinessController[Business Controller]
-            AuthController[Auth Controller]
-        end
-        
-        subgraph "Services"
-            UserService[User Service]
-            DealService[Deal Service]
-            BusinessService[Business Service]
-            EmailService[Email Service]
-        end
-    end
-
-    subgraph "Database Layer"
-        MongoDB[(MongoDB<br/>Database)]
-        
-        subgraph "Collections"
-            Users[Users Collection]
-            Deals[Deals Collection]
-            Businesses[Business Collection]
-        end
-    end
-
-    subgraph "External Services"
-        Cloudinary[Cloudinary<br/>Image Storage]
-        GoogleMaps[Google Maps API<br/>or OpenStreetMap]
-        EmailProvider[Email Service<br/>SendGrid/Nodemailer]
-    end
-
-    subgraph "File Upload"
-        Multer[Multer<br/>File Upload Handler]
-    end
-
-    %% Client to Frontend connections
-    WebBrowser --> ReactApp
-    MobileDevice --> ReactApp
-    
-    %% Frontend internal connections
-    ReactApp --> Router
-    ReactApp --> StateManagement
-    ReactApp --> UIComponents
-    ReactApp --> HTTPClient
-    ReactApp --> Maps
-    
-    %% Frontend to Backend
-    HTTPClient --> ExpressAPI
-    
-    %% Backend middleware flow
-    ExpressAPI --> Auth
-    ExpressAPI --> Validation
-    ExpressAPI --> ErrorHandler
-    ExpressAPI --> RateLimiter
-    ExpressAPI --> Security
-    
-    %% Middleware to Controllers
-    Auth --> UserController
-    Auth --> DealController
-    Auth --> BusinessController
-    Auth --> AuthController
-    
-    %% Controllers to Services
-    UserController --> UserService
-    DealController --> DealService
-    BusinessController --> BusinessService
-    AuthController --> UserService
-    
-    %% Services to Database
-    UserService --> MongoDB
-    DealService --> MongoDB
-    BusinessService --> MongoDB
-    
-    %% Database Collections
-    MongoDB --> Users
-    MongoDB --> Deals
-    MongoDB --> Businesses
-    
-    %% External Services connections
-    DealService --> Cloudinary
-    BusinessService --> Cloudinary
-    Multer --> Cloudinary
-    Maps --> GoogleMaps
-    UserService --> EmailProvider
-    
-    %% File Upload flow
-    ExpressAPI --> Multer
-
-    classDef frontend fill:#61dafb,stroke:#333,stroke-width:2px,color:#000
-    classDef backend fill:#68a063,stroke:#333,stroke-width:2px,color:#fff
-    classDef database fill:#4db33d,stroke:#333,stroke-width:2px,color:#fff
-    classDef external fill:#f39c12,stroke:#333,stroke-width:2px,color:#000
-    
-    class ReactApp,Router,StateManagement,UIComponents,HTTPClient,Maps frontend
-    class ExpressAPI,Auth,Validation,ErrorHandler,RateLimiter,Security,UserController,DealController,BusinessController,AuthController,UserService,DealService,BusinessService,EmailService,Multer backend
-    class MongoDB,Users,Deals,Businesses database
-    class Cloudinary,GoogleMaps,EmailProvider external
-```
-
-## Data Flow Architecture
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Frontend<br/>(React)
-    participant A as API Gateway<br/>(Express)
-    participant M as Middleware<br/>(Auth/Validation)
-    participant C as Controller
-    participant S as Service
-    participant DB as MongoDB
-    participant E as External Services<br/>(Cloudinary)
-
-    U->>F: Browse Deals
-    F->>A: GET /api/v1/deals
-    A->>M: Validate Request
-    M->>M: Check JWT Token
-    M->>C: Forward Request
-    C->>S: Process Request
-    S->>DB: Query Deals
-    DB-->>S: Return Data
-    S->>S: Format Response
-    S-->>C: Return Deals
-    C-->>A: Send Response
-    A-->>F: JSON Response
-    F-->>U: Display Deals
-
-    Note over U,E: User Creates New Deal
-
-    U->>F: Submit Deal Form + Images
-    F->>A: POST /api/v1/deals
-    A->>M: Validate & Authenticate
-    M->>M: Verify JWT
-    M->>M: Validate Input
-    M->>C: Forward Valid Request
-    C->>S: Process Deal Creation
-    S->>E: Upload Images to Cloudinary
-    E-->>S: Return Image URLs
-    S->>DB: Save Deal with Image URLs
-    DB-->>S: Confirm Save
-    S-->>C: Return Created Deal
-    C-->>A: Send Response
-    A-->>F: JSON Response (201)
-    F-->>U: Show Success + Deal Details
-```
-
-## Authentication Flow
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Frontend
-    participant A as Auth API
-    participant M as Auth Middleware
-    participant DB as MongoDB
-    participant J as JWT Service
-
-    Note over U,J: User Registration
-
-    U->>F: Enter Registration Info
-    F->>A: POST /api/v1/auth/register
-    A->>M: Validate Input
-    M->>M: Hash Password (Bcrypt)
-    M->>DB: Save User
-    DB-->>M: User Created
-    M->>J: Generate JWT Token
-    J-->>A: Return Token
-    A-->>F: Token + User Data
-    F->>F: Store Token (Cookie/Storage)
-    F-->>U: Redirect to Dashboard
-
-    Note over U,J: User Login
-
-    U->>F: Enter Credentials
-    F->>A: POST /api/v1/auth/login
-    A->>M: Validate Input
-    M->>DB: Find User by Email
-    DB-->>M: User Data
-    M->>M: Compare Password (Bcrypt)
-    M->>J: Generate JWT Token
-    J-->>A: Return Token
-    A-->>F: Token + User Data
-    F->>F: Store Token
-    F-->>U: Redirect to Dashboard
-
-    Note over U,J: Protected Route Access
-
-    U->>F: Access Protected Page
-    F->>F: Check Token Exists
-    F->>A: GET /api/v1/protected<br/>Header: Authorization Bearer Token
-    A->>M: Verify JWT Token
-    M->>J: Decode & Validate Token
-    J-->>M: Token Valid + User ID
-    M->>DB: Fetch User
-    DB-->>M: User Data
-    M-->>A: Attach User to Request
-    A-->>F: Protected Data
-    F-->>U: Display Protected Content
-```
-
-## Database Schema Relationships
-
-```mermaid
-erDiagram
-    USER ||--o{ DEAL : creates
-    USER {
-        ObjectId _id PK
-        string name
-        string email UK
-        string password
-        string role
-        string avatar
-        object location
-        array preferences
-        date createdAt
-        date updatedAt
-    }
-    
-    DEAL ||--|| BUSINESS : "belongs to"
-    DEAL {
-        ObjectId _id PK
-        string title
-        string description
-        number price
-        number discount
-        ObjectId business FK
-        ObjectId createdBy FK
-        array images
-        object location
-        date expiresAt
-        boolean isActive
-        array categories
-        date createdAt
-        date updatedAt
-    }
-    
-    BUSINESS ||--o{ DEAL : offers
-    BUSINESS {
-        ObjectId _id PK
-        string name
-        string description
-        string email
-        string phone
-        object address
-        object location
-        array images
-        string website
-        array categories
-        ObjectId owner FK
-        date createdAt
-        date updatedAt
-    }
-    
-    USER ||--o{ BUSINESS : owns
-```
-
-## Folder Structure
-
-### Backend Structure
-```
-backend/
-├── config/
-│   ├── db.js                 # MongoDB connection
-│   ├── auth.js               # JWT configuration
-│   └── cloudinary.js         # Cloudinary setup
-├── controllers/
-│   ├── authController.js     # Authentication logic
-│   ├── userController.js     # User CRUD operations
-│   ├── dealController.js     # Deal CRUD operations
-│   └── businessController.js # Business CRUD operations
-├── middleware/
-│   ├── auth.js               # JWT authentication
-│   ├── error.js              # Error handling
-│   ├── validation.js         # Input validation
-│   ├── upload.js             # File upload (Multer)
-│   └── rateLimiter.js        # Rate limiting
-├── models/
-│   ├── User.js               # User schema
-│   ├── Deal.js               # Deal schema
-│   └── Business.js           # Business schema
-├── routes/
-│   ├── authRoutes.js         # Auth endpoints
-│   ├── userRoutes.js         # User endpoints
-│   ├── dealRoutes.js         # Deal endpoints
-│   └── businessRoutes.js     # Business endpoints
-├── services/
-│   ├── userService.js        # User business logic
-│   ├── dealService.js        # Deal business logic
-│   ├── businessService.js    # Business business logic
-│   └── emailService.js       # Email functionality
-├── utils/
-│   ├── ApiError.js           # Custom error class
-│   ├── ApiResponse.js        # Response formatter
-│   ├── asyncHandler.js       # Async wrapper
-│   └── validators.js         # Validation helpers
-├── .env                       # Environment variables
-├── .gitignore
-├── package.json
-└── server.js                  # Entry point
-```
-
-### Frontend Structure
-```
-frontend/
-├── public/
-│   ├── index.html
-│   └── favicon.ico
-├── src/
-│   ├── components/
-│   │   ├── common/
-│   │   │   ├── Header.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── Loader.jsx
-│   │   │   └── ErrorBoundary.jsx
-│   │   ├── deals/
-│   │   │   ├── DealCard.jsx
-│   │   │   ├── DealList.jsx
-│   │   │   ├── DealDetail.jsx
-│   │   │   └── DealForm.jsx
-│   │   ├── business/
-│   │   │   ├── BusinessCard.jsx
-│   │   │   ├── BusinessList.jsx
-│   │   │   └── BusinessProfile.jsx
-│   │   ├── auth/
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   └── PrivateRoute.jsx
-│   │   └── map/
-│   │       ├── MapView.jsx
-│   │       └── LocationPicker.jsx
-│   ├── pages/
-│   │   ├── Home.jsx
-│   │   ├── Deals.jsx
-│   │   ├── DealDetails.jsx
-│   │   ├── CreateDeal.jsx
-│   │   ├── Profile.jsx
-│   │   ├── Business.jsx
-│   │   └── NotFound.jsx
-│   ├── context/
-│   │   ├── AuthContext.jsx
-│   │   └── DealContext.jsx
-│   ├── hooks/
-│   │   ├── useAuth.js
-│   │   ├── useDeals.js
-│   │   └── useLocation.js
-│   ├── services/
-│   │   ├── api.js             # Axios configuration
-│   │   ├── authService.js     # Auth API calls
-│   │   ├── dealService.js     # Deal API calls
-│   │   └── businessService.js # Business API calls
-│   ├── utils/
-│   │   ├── formatters.js      # Data formatting
-│   │   ├── validators.js      # Form validation
-│   │   └── constants.js       # App constants
-│   ├── styles/
-│   │   └── index.css          # Tailwind imports
-│   ├── App.jsx
-│   ├── index.js
-│   └── routes.js
-├── .env
-├── .gitignore
-├── package.json
-├── tailwind.config.js
-└── vite.config.js
-```
-
-## API Endpoints Structure
-
-### Authentication Endpoints
-```
-POST   /api/v1/auth/register          # User registration
-POST   /api/v1/auth/login             # User login
-POST   /api/v1/auth/logout            # User logout
-GET    /api/v1/auth/me                # Get current user
-POST   /api/v1/auth/forgot-password   # Request password reset
-PUT    /api/v1/auth/reset-password    # Reset password
-```
-
-### User Endpoints
-```
-GET    /api/v1/users                  # Get all users (admin)
-GET    /api/v1/users/:id              # Get user by ID
-PUT    /api/v1/users/:id              # Update user
-DELETE /api/v1/users/:id              # Delete user
-PUT    /api/v1/users/:id/avatar       # Update user avatar
-```
-
-### Deal Endpoints
-```
-GET    /api/v1/deals                  # Get all deals (with filters)
-GET    /api/v1/deals/:id              # Get deal by ID
-POST   /api/v1/deals                  # Create new deal (auth required)
-PUT    /api/v1/deals/:id              # Update deal (auth required)
-DELETE /api/v1/deals/:id              # Delete deal (auth required)
-GET    /api/v1/deals/nearby           # Get deals near location
-GET    /api/v1/deals/category/:cat    # Get deals by category
-```
-
-### Business Endpoints
-```
-GET    /api/v1/businesses             # Get all businesses
-GET    /api/v1/businesses/:id         # Get business by ID
-POST   /api/v1/businesses             # Create business (auth required)
-PUT    /api/v1/businesses/:id         # Update business (auth required)
-DELETE /api/v1/businesses/:id         # Delete business (auth required)
-GET    /api/v1/businesses/:id/deals   # Get all deals for a business
-```
-
-## Deployment Architecture
-
-```mermaid
-graph TB
-    subgraph "Development"
-        DevFrontend[Local React Dev Server<br/>Vite]
-        DevBackend[Local Node Server]
-        DevDB[Local MongoDB]
-    end
-
-    subgraph "Production Environment"
-        subgraph "Frontend Hosting - Vercel/Netlify"
-            CDN[CDN<br/>Static Assets]
-            ReactBuild[React Production Build]
-        end
-        
-        subgraph "Backend Hosting - Render/Railway"
-            LoadBalancer[Load Balancer]
-            NodeServer1[Node.js Instance 1]
-            NodeServer2[Node.js Instance 2]
-        end
-        
-        subgraph "Database - MongoDB Atlas"
-            PrimaryDB[(Primary MongoDB)]
-            ReplicaDB1[(Replica 1)]
-            ReplicaDB2[(Replica 2)]
-        end
-        
-        subgraph "External Services"
-            CloudinaryProd[Cloudinary CDN]
-            MapService[Map Service API]
-        end
-    end
-
-    Users[End Users] --> CDN
-    CDN --> ReactBuild
-    ReactBuild --> LoadBalancer
-    LoadBalancer --> NodeServer1
-    LoadBalancer --> NodeServer2
-    NodeServer1 --> PrimaryDB
-    NodeServer2 --> PrimaryDB
-    PrimaryDB --> ReplicaDB1
-    PrimaryDB --> ReplicaDB2
-    NodeServer1 --> CloudinaryProd
-    NodeServer2 --> CloudinaryProd
-    ReactBuild --> MapService
-
-    classDef dev fill:#e74c3c,stroke:#333,stroke-width:2px,color:#fff
-    classDef prod fill:#27ae60,stroke:#333,stroke-width:2px,color:#fff
-    
-    class DevFrontend,DevBackend,DevDB dev
-    class CDN,ReactBuild,LoadBalancer,NodeServer1,NodeServer2,PrimaryDB,ReplicaDB1,ReplicaDB2,CloudinaryProd,MapService prod
-```
-
-## Technology Stack Summary
-
-### Frontend Technologies
-- **Framework**: React 18
-- **Routing**: React Router v6
-- **State Management**: Context API / Redux Toolkit
-- **Styling**: Tailwind CSS
-- **HTTP Client**: Axios
-- **Maps**: React Leaflet or Google Maps API
-- **Image Display**: Cloudinary
-- **Form Handling**: React Hook Form
-- **Date Handling**: date-fns
-- **Build Tool**: Vite
-
-### Backend Technologies
-- **Runtime**: Node.js v18+
-- **Framework**: Express.js
-- **Database**: MongoDB (Mongoose ODM)
-- **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: Bcrypt
-- **File Upload**: Multer
-- **Image Storage**: Cloudinary
-- **Validation**: Express Validator
-- **Security**: Helmet.js, express-mongo-sanitize
-- **Rate Limiting**: express-rate-limit
-- **CORS**: cors middleware
-
-### DevOps & Tools
-- **Version Control**: Git & GitHub
-- **API Testing**: Postman
-- **Code Quality**: ESLint, Prettier
-- **Testing**: Jest, React Testing Library
-- **CI/CD**: GitHub Actions
-- **Deployment**: Vercel (Frontend), Render/Railway (Backend)
-- **Database Hosting**: MongoDB Atlas
+**Version:** 1.0.0 (Phase 5 Complete)  
+**Last Updated:** November 24, 2025  
+**Status:** ✅ Backend Complete | 🔄 Frontend In Planning
 
 ---
 
-## Notes for Implementation
+## 📋 Table of Contents
 
-1. **Environment Variables**: Always use .env files and never commit them to version control
-2. **Security**: Implement rate limiting, input validation, and sanitization from the start
-3. **Error Handling**: Use centralized error handling middleware
-4. **Logging**: Implement proper logging for debugging and monitoring
-5. **Testing**: Write tests as you develop, not after
-6. **Documentation**: Keep API documentation updated using tools like Swagger
-7. **Code Reviews**: Use pull requests and require reviews before merging
-8. **Performance**: Optimize queries, implement caching where appropriate
-9. **Scalability**: Design with growth in mind - use proper indexing, pagination
-10. **Backup**: Regular database backups are essential
+1. [High-Level Architecture](#high-level-architecture)
+2. [Backend Architecture](#backend-architecture)
+3. [Database Architecture](#database-architecture)
+4. [API Layer](#api-layer)
+5. [Authentication Flow](#authentication-flow)
+6. [Data Flow](#data-flow)
+7. [Technology Stack](#technology-stack)
+8. [Future Architecture](#future-architecture)
+
+---
+
+## 🏗️ High-Level Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │ Web Browser  │  │ Mobile App   │  │   Admin      │      │
+│  │  (React)     │  │  (Future)    │  │  Dashboard   │      │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
+│         │                  │                  │               │
+│         └──────────────────┴──────────────────┘               │
+│                            │                                  │
+└────────────────────────────┼──────────────────────────────────┘
+                             │
+                    ┌────────▼─────────┐
+                    │   HTTPS/REST     │
+                    └────────┬─────────┘
+                             │
+┌────────────────────────────▼──────────────────────────────────┐
+│                     API GATEWAY LAYER                          │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │              FastAPI Application                        │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │  CORS Middleware │ Auth Middleware │ Logging     │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │  Swagger UI  │  ReDoc  │  Health Check Endpoints │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                            │                                   │
+│         ┌──────────────────┼──────────────────┐              │
+│         │                  │                  │               │
+│    ┌────▼─────┐      ┌────▼─────┐      ┌────▼─────┐        │
+│    │   Auth   │      │  Deals   │      │ Business │        │
+│    │  Routes  │      │  Routes  │      │  Routes  │        │
+│    └────┬─────┘      └────┬─────┘      └────┬─────┘        │
+│         │                  │                  │               │
+│    ┌────▼─────┐      ┌────▼─────┐                          │
+│    │Favorites │      │ Reviews  │                          │
+│    │  Routes  │      │  Routes  │                          │
+│    └────┬─────┘      └────┬─────┘                          │
+│         │                  │                                  │
+└─────────┼──────────────────┼──────────────────────────────────┘
+          │                  │
+┌─────────▼──────────────────▼──────────────────────────────────┐
+│                    BUSINESS LOGIC LAYER                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
+│  │   Security  │  │  Validation │  │   Models    │          │
+│  │  (JWT, Hash)│  │  (Pydantic) │  │  (Beanie)   │          │
+│  └─────────────┘  └─────────────┘  └─────────────┘          │
+└────────────────────────────┬───────────────────────────────────┘
+                             │
+┌────────────────────────────▼───────────────────────────────────┐
+│                      DATA ACCESS LAYER                          │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │              Beanie ODM (Motor Driver)                  │  │
+│  └─────────────────────────────────────────────────────────┘  │
+└────────────────────────────┬───────────────────────────────────┘
+                             │
+┌────────────────────────────▼───────────────────────────────────┐
+│                      DATABASE LAYER                             │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                  MongoDB Atlas (Cloud)                  │  │
+│  │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐    │  │
+│  │  │Users │  │Deals │  │Business│ │Favs  │  │Reviews│   │  │
+│  │  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘    │  │
+│  └─────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚙️ Backend Architecture (Detailed)
+
+```
+savemate-backend/
+│
+├── app/
+│   ├── main.py                    # FastAPI Application Entry
+│   │   ├── CORS Configuration
+│   │   ├── Router Registration
+│   │   ├── Lifespan Events
+│   │   └── Health Check Endpoints
+│   │
+│   ├── config.py                  # Configuration Management
+│   │   ├── Environment Variables
+│   │   ├── Database Settings
+│   │   └── Security Settings
+│   │
+│   ├── database.py                # Database Connection
+│   │   ├── MongoDB Client
+│   │   ├── Beanie Initialization
+│   │   └── Connection Management
+│   │
+│   ├── core/                      # Core Functionality
+│   │   ├── security.py            # Security Utilities
+│   │   │   ├── Password Hashing (bcrypt)
+│   │   │   ├── JWT Token Creation
+│   │   │   ├── Token Verification
+│   │   │   └── Token Refresh
+│   │   │
+│   │   └── config.py              # Core Configuration
+│   │
+│   ├── models/                    # Database Models (Beanie)
+│   │   ├── user.py                # User Document
+│   │   ├── deal.py                # Deal Document
+│   │   ├── business.py            # Business Document
+│   │   ├── category.py            # Category Document
+│   │   ├── favorite.py            # Favorite Document
+│   │   └── review.py              # Review Document
+│   │
+│   ├── schemas/                   # Pydantic Schemas
+│   │   ├── auth_schema.py         # Auth Request/Response
+│   │   ├── deal_schema.py         # Deal Request/Response
+│   │   ├── business_schema.py     # Business Request/Response
+│   │   ├── favorite_schema.py     # Favorite Request/Response
+│   │   └── review_schema.py       # Review Request/Response
+│   │
+│   └── api/
+│       └── routes/                # API Route Handlers
+│           ├── auth.py            # Authentication (3 endpoints)
+│           ├── deals.py           # Deals CRUD (6 endpoints)
+│           ├── businesses.py      # Business CRUD (7 endpoints)
+│           ├── favorites.py       # Favorites (4 endpoints)
+│           └── reviews.py         # Reviews (5 endpoints)
+│
+├── .env                           # Environment Variables
+├── .gitignore                     # Git Ignore Rules
+├── requirements.txt               # Python Dependencies
+└── README.md                      # Documentation
+```
+
+**Total Endpoints:** 25  
+**Total Models:** 6  
+**Total Collections:** 6
+
+---
+
+## 💾 Database Architecture
+
+### Collection Structure
+
+```
+MongoDB Atlas - "savemate" Database
+│
+├── users                          # User Accounts
+│   ├── _id (ObjectId)
+│   ├── email (unique, indexed)
+│   ├── username (unique, indexed)
+│   ├── hashed_password
+│   ├── full_name
+│   ├── is_active
+│   ├── is_business_owner
+│   ├── created_at
+│   └── updated_at
+│
+├── deals                          # Deal Listings
+│   ├── _id (ObjectId)
+│   ├── title
+│   ├── description
+│   ├── original_price
+│   ├── discounted_price
+│   ├── discount_percentage (auto-calculated)
+│   ├── category (enum)
+│   ├── business_id (ref: users._id)
+│   ├── business_name
+│   ├── location (dict)
+│   ├── start_date / end_date
+│   ├── status (enum)
+│   ├── views_count
+│   ├── saves_count
+│   ├── created_by (ref: users._id)
+│   └── timestamps
+│
+├── businesses                     # Business Profiles
+│   ├── _id (ObjectId)
+│   ├── owner_id (ref: users._id)
+│   ├── business_name
+│   ├── category (enum)
+│   ├── email, phone, website
+│   ├── location (dict)
+│   ├── operating_hours (array)
+│   ├── status (enum)
+│   ├── rating_average / rating_count
+│   ├── total_deals / active_deals
+│   └── timestamps
+│
+├── favorites                      # User Favorites (M:N)
+│   ├── _id (ObjectId)
+│   ├── user_id (ref: users._id)
+│   ├── deal_id (ref: deals._id)
+│   └── created_at
+│   │
+│   └── Index: (user_id, deal_id) unique
+│
+├── reviews                        # Deal Reviews (M:N)
+│   ├── _id (ObjectId)
+│   ├── deal_id (ref: deals._id)
+│   ├── user_id (ref: users._id)
+│   ├── business_id (ref: businesses._id)
+│   ├── rating (1-5)
+│   ├── title, comment
+│   ├── helpful_count
+│   └── timestamps
+│   │
+│   └── Index: (user_id, deal_id) unique
+│
+└── categories                     # Deal Categories
+    ├── _id (ObjectId)
+    ├── name
+    ├── slug (unique)
+    ├── description
+    └── is_active
+```
+
+### Relationships
+
+```
+User (1) ────── (N) Business
+  │                    │
+  │                    │
+  │ (created_by)       │ (business_id)
+  │                    │
+  ├─────────────── (N) Deal ◄──────┐
+  │                    │            │
+  │                    │            │
+  │                    │            │
+  ├── (M:N) ──── Favorite          │
+  │                                 │
+  └── (M:N) ──── Review ────────────┘
+                     │
+                     │ (business_id)
+                     │
+                 Business
+```
+
+---
+
+## 🔌 API Layer
+
+### Endpoint Organization
+
+```
+/api/v1/
+│
+├── /auth/                         # Authentication
+│   ├── POST   /register           # Register user
+│   ├── POST   /login              # Login user
+│   └── POST   /refresh            # Refresh token
+│
+├── /deals/                        # Deals Management
+│   ├── POST   /                   # Create deal
+│   ├── GET    /                   # Get all deals (filters, pagination)
+│   ├── GET    /{id}               # Get single deal
+│   ├── PUT    /{id}               # Update deal
+│   ├── DELETE /{id}               # Delete deal
+│   └── GET    /category/{cat}     # Get deals by category
+│
+├── /businesses/                   # Business Management
+│   ├── POST   /                   # Create business
+│   ├── GET    /                   # Get all businesses
+│   ├── GET    /{id}               # Get single business
+│   ├── PUT    /{id}               # Update business
+│   ├── DELETE /{id}               # Delete business
+│   ├── GET    /owner/{user_id}    # Get user's businesses
+│   └── GET    /{id}/deals         # Get business deals
+│
+├── /favorites/                    # User Favorites
+│   ├── POST   /                   # Add to favorites
+│   ├── DELETE /{deal_id}          # Remove from favorites
+│   ├── GET    /                   # Get user favorites
+│   └── GET    /check/{deal_id}    # Check if favorited
+│
+└── /reviews/                      # Reviews & Ratings
+    ├── POST   /                   # Create review
+    ├── GET    /deal/{deal_id}     # Get deal reviews
+    ├── GET    /user/{user_id}     # Get user reviews
+    ├── PUT    /{id}               # Update review
+    └── POST   /{id}/helpful       # Mark as helpful
+```
+
+---
+
+## 🔐 Authentication Flow
+
+```
+┌──────────────┐
+│    CLIENT    │
+└──────┬───────┘
+       │
+       │ 1. POST /auth/register or /auth/login
+       │    { email, password }
+       ▼
+┌──────────────────────────────────────────┐
+│         FastAPI Auth Endpoint            │
+└──────┬───────────────────────────────────┘
+       │
+       │ 2. Validate credentials
+       │    (bcrypt password check)
+       ▼
+┌──────────────────────────────────────────┐
+│         Security Module                  │
+│  ┌────────────────────────────────────┐ │
+│  │  create_access_token()             │ │
+│  │  create_refresh_token()            │ │
+│  │  Payload: user_id, exp, type       │ │
+│  └────────────────────────────────────┘ │
+└──────┬───────────────────────────────────┘
+       │
+       │ 3. Return tokens
+       │    { access_token, refresh_token }
+       ▼
+┌──────────────┐
+│    CLIENT    │
+│  Store tokens│
+└──────┬───────┘
+       │
+       │ 4. Authenticated Request
+       │    Headers: Authorization: Bearer {access_token}
+       ▼
+┌──────────────────────────────────────────┐
+│      Protected Endpoint                  │
+└──────┬───────────────────────────────────┘
+       │
+       │ 5. Verify token (JWT decode + validate)
+       ▼
+┌──────────────────────────────────────────┐
+│         Security Module                  │
+│  ┌────────────────────────────────────┐ │
+│  │  verify_token()                    │ │
+│  │  Check expiration, signature       │ │
+│  └────────────────────────────────────┘ │
+└──────┬───────────────────────────────────┘
+       │
+       │ 6a. Valid → Process request
+       │ 6b. Invalid/Expired → 401 Unauthorized
+       ▼
+┌──────────────┐
+│   RESPONSE   │
+└──────────────┘
+```
+
+### Token Details
+
+**Access Token:**
+- Expires: 30 minutes
+- Purpose: API authentication
+- Contains: user_id, token_type
+
+**Refresh Token:**
+- Expires: 7 days
+- Purpose: Get new access token
+- Contains: user_id, token_type
+
+---
+
+## 📊 Data Flow Examples
+
+### Example 1: Create Deal Flow
+
+```
+User → POST /api/v1/deals/
+  │
+  ├─► Authenticate (JWT)
+  │     │
+  │     ├─► Valid? → Continue
+  │     └─► Invalid? → 401 Unauthorized
+  │
+  ├─► Validate Request (Pydantic)
+  │     ├─► Check: title, prices, dates
+  │     ├─► Auto-calculate: discount_percentage
+  │     └─► Validate: location, category
+  │
+  ├─► Create Deal Document
+  │     ├─► business_id = current_user_id
+  │     ├─► status = "active"
+  │     ├─► created_by = current_user_id
+  │     └─► timestamps
+  │
+  ├─► Save to MongoDB (deals collection)
+  │
+  └─► Return 201 Created
+        └─► DealResponse schema
+```
+
+### Example 2: Add to Favorites Flow
+
+```
+User → POST /api/v1/favorites/
+  │       { deal_id: "..." }
+  │
+  ├─► Authenticate
+  │
+  ├─► Check if already favorited
+  │     ├─► Query: (user_id, deal_id)
+  │     └─► Exists? → 400 Bad Request
+  │
+  ├─► Verify deal exists
+  │     └─► Not found? → 404 Not Found
+  │
+  ├─► Create Favorite document
+  │     ├─► user_id = current_user_id
+  │     └─► deal_id = request.deal_id
+  │
+  ├─► Increment deal.saves_count
+  │     └─► UPDATE deals SET saves_count += 1
+  │
+  └─► Return 201 Created
+```
+
+### Example 3: Get Deals with Filters
+
+```
+User → GET /api/v1/deals/?category=food&city=Warsaw&min_discount=30
+  │
+  ├─► Parse Query Parameters
+  │     ├─► category = "food"
+  │     ├─► city = "Warsaw"
+  │     ├─► min_discount = 30
+  │     └─► page, page_size, sort_by, sort_order
+  │
+  ├─► Build MongoDB Query
+  │     {
+  │       "category": "food",
+  │       "location.city": { $regex: "warsaw", $options: "i" },
+  │       "discount_percentage": { $gte: 30 },
+  │       "status": "active"
+  │     }
+  │
+  ├─► Execute Query
+  │     ├─► Count total results
+  │     ├─► Apply pagination (.skip().limit())
+  │     └─► Apply sorting
+  │
+  └─► Return 200 OK
+        ├─► deals: [...]
+        ├─► total, page, page_size
+        └─► total_pages
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### Backend
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Framework | FastAPI 0.104+ | REST API framework |
+| Language | Python 3.8+ | Programming language |
+| Server | Uvicorn | ASGI server |
+| ODM | Beanie 1.23+ | MongoDB object mapper |
+| Database Driver | Motor 3.3+ | Async MongoDB driver |
+| Validation | Pydantic 2.5+ | Data validation |
+| Auth | JWT (python-jose) | Token authentication |
+| Password | bcrypt 4.1.2 | Password hashing |
+
+### Database
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Database | MongoDB Atlas | Cloud NoSQL database |
+| Collections | 6 | Data storage |
+| Indexes | Compound + Single | Query optimization |
+
+### DevOps
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Version Control | Git + GitHub | Code management |
+| Documentation | Swagger UI + ReDoc | API docs |
+| Environment | dotenv | Config management |
+
+---
+
+## 🚀 Future Architecture (Phase 6+)
+
+### Planned Additions
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  FUTURE COMPONENTS                           │
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │   Redis      │  │  Celery      │  │   AWS S3     │     │
+│  │  (Caching)   │  │ (Task Queue) │  │(Image Store) │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │  SendGrid    │  │  Sentry      │  │  Prometheus  │     │
+│  │   (Email)    │  │(Error Track) │  │ (Monitoring) │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │           Polish API Integrations                   │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐         │   │
+│  │  │  Google  │  │ Allegro  │  │   GUS    │         │   │
+│  │  │  Places  │  │   API    │  │   API    │         │   │
+│  │  └──────────┘  └──────────┘  └──────────┘         │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              Frontend (React)                       │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐         │   │
+│  │  │  Vite    │  │ Tailwind │  │ Shadcn/ui│         │   │
+│  │  └──────────┘  └──────────┘  └──────────┘         │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Phase 6 Features
+- 🔄 Polish API Integration (Google Places, Allegro, GUS)
+- 🗺️ Advanced Geolocation Search
+- 📧 Email Notifications (SendGrid)
+- 📊 Admin Dashboard
+- 🖼️ Image Upload (AWS S3)
+
+### Phase 7+ Features
+- ⚡ Redis Caching
+- 🔔 Real-time Notifications (WebSocket)
+- 📱 Mobile App API
+- 🧪 Automated Testing
+- 🚀 CI/CD Pipeline
+- 📈 Analytics & Monitoring
+
+---
+
+## 📐 Deployment Architecture (Future)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      PRODUCTION                              │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │            Load Balancer (Nginx/AWS ALB)             │  │
+│  └──────────────────┬───────────────────────────────────┘  │
+│                     │                                       │
+│         ┌───────────┼───────────┐                          │
+│         │           │           │                           │
+│    ┌────▼────┐ ┌────▼────┐ ┌────▼────┐                    │
+│    │  API    │ │  API    │ │  API    │                    │
+│    │Instance1│ │Instance2│ │Instance3│                    │
+│    └────┬────┘ └────┬────┘ └────┬────┘                    │
+│         │           │           │                           │
+│         └───────────┼───────────┘                          │
+│                     │                                       │
+│         ┌───────────▼───────────┐                          │
+│         │                       │                           │
+│    ┌────▼────┐          ┌──────▼──────┐                   │
+│    │ MongoDB │          │    Redis    │                   │
+│    │ Atlas   │          │   (Cache)   │                   │
+│    │Replica  │          └─────────────┘                   │
+│    │  Set    │                                             │
+│    └─────────┘                                             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📊 Current Status
+
+### ✅ Completed (Phase 1-5)
+
+| Phase | Component | Status |
+|-------|-----------|--------|
+| 1 | Project Setup | ✅ Complete |
+| 2 | Database Models | ✅ Complete |
+| 3 | Authentication | ✅ Complete |
+| 4 | Deals System | ✅ Complete |
+| 5 | Business/Favorites/Reviews | ✅ Complete |
+
+**Total:**
+- 25 API Endpoints
+- 6 Database Collections
+- 6 Models with Beanie ODM
+- JWT Authentication
+- Complete CRUD Operations
+- Advanced Filtering & Search
+- Pagination & Sorting
+
+### 🔄 In Progress (Phase 6)
+- API Integration Planning
+- Frontend Architecture Design
+
+### 🔮 Planned (Phase 7+)
+- Caching Layer
+- Background Tasks
+- Real-time Features
+- Mobile App
+- Production Deployment
+
+---
+
+**Last Updated:** November 24, 2025  
+**Version:** 1.0.0 (Phase 5 Complete)  
+**Repository:** https://github.com/jenfranx30/savemate-backend
+
+---
+
+For detailed API documentation, see [SaveMate_API_Documentation.md](SaveMate_API_Documentation.md)
