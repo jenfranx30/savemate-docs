@@ -22,7 +22,7 @@ ipconfig
 
 ### 3. Access from Mobile
 - Connect phone to same WiFi network
-- Open browser: `http://<your-ip>:5173`
+- Open browser: `http://<your-ipv4 address>:5173`
 
 ## Browser Developer Tools
 
@@ -38,4 +38,4 @@ ipconfig
 
 ## E2E Testing
 
-See [E2E_TESTING_README.md] for Playwright mobile testing setup.
+See [E2E_TESTING_README.md] for Playwright mobile testing setup.(To be Implemented)
