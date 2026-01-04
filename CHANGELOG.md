@@ -87,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.9.0] - 2025-12-15
+## [0.9.0] - 2026-01-03
 
 ### Added
 - Initial project setup
@@ -108,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.8.0] - 2025-12-01
+## [0.8.0] - 2025-12-29
 
 ### Added
 - Deal management system
@@ -123,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.7.0] - 2025-11-15
+## [0.7.0] - 2025-12-27
 
 ### Added
 - Business verification workflow
@@ -141,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.6.0] - 2025-11-01
+## [0.6.0] - 2025-12-20
 
 ### Added
 - Search functionality
@@ -155,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.5.0] - 2025-10-15
+## [0.5.0] - 2025-12-15
 
 ### Added
 - Mobile-responsive design
@@ -169,7 +169,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.4.0] - 2025-10-01
+## [0.4.0] - 2025-12-01
 
 ### Added
 - Cloudinary integration
@@ -183,7 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.3.0] - 2025-09-15
+## [0.3.0] - 2025-11-15
 
 ### Added
 - User dashboard
@@ -211,44 +211,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] - 2025-08-15
+## [0.1.0] - 2025-10-15
 
 ### Added
 - Initial project structure
 - Basic API setup
 - Database connection
 - Authentication skeleton
-
----
-
-## Upcoming Features (Roadmap)
-
-### Q1 2026
-- [ ] Performance optimization
-- [ ] Security audit
-- [ ] Beta testing
-- [ ] Production deployment
-
-### Q2 2026
-- [ ] React Native mobile apps
-- [ ] iOS App Store submission
-- [ ] Google Play submission
-- [ ] Push notifications
-- [ ] Offline mode
-
-### Q3 2026
-- [ ] Payment processing integration
-- [ ] Advanced analytics dashboard
-- [ ] AI-powered deal recommendations
-- [ ] Social features
-- [ ] Multi-language support
-
-### Q4 2026
-- [ ] International expansion
-- [ ] White-label solution
-- [ ] Partner API
-- [ ] Enterprise features
-- [ ] Advanced reporting
 
 ---
 
@@ -307,16 +276,15 @@ npm update
 ## Contributors
 
 - **SaveMate Team** - Initial work and ongoing development
-- **Pawel** - Team Lead & Full Stack Development
+- **Rustam Islamov** - Team Lead & Full Stack Development
 - **WSB University** - Academic support
 
 ---
 
 ## Links
 
-- [GitHub Repository](https://github.com/jenfranx30/savemate-docs)
+- [GitHub Repository](https://github.com/jenfranx30)
 - [Documentation](https://github.com/jenfranx30/savemate-docs)
-- [Issue Tracker](https://github.com/jenfranx30/savemate-docs/issues)
 - [Frontend Repo](https://github.com/jenfranx30/savemate-frontend)
 - [Backend Repo](https://github.com/jenfranx30/savemate-backend)
 
